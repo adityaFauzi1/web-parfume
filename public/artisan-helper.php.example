@@ -1,0 +1,37 @@
+<?php
+// ─── Helper untuk shared hosting tanpa akses SSH ─────────────────────
+// Upload file ini ke folder public/ di hosting sebagai artisan-helper.php,
+// buka via browser: https://namadomainkamu.com/artisan-helper.php?key=RAHASIA&cmd=migrate
+// Lalu HAPUS file ini setelah selesai dipakai!
+//
+// GANTI 'ganti-dengan-token-acak-panjang' dengan token acak milikmu.
+
+$TOKEN = 'ganti-dengan-token-acak-panjang';
+
+if (! isset($_GET['key']) || $_GET['key'] !== $TOKEN) {
+    http_response_code(403);
+    exit('Forbidden');
+}
+
+$cmd = $_GET['cmd'] ?? 'help';
+
+require __DIR__.'/../vendor/autoload.php';
+$app = require __DIR__.'/../bootstrap/app.php';
+$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+
+$allowed = [
+    'migrate' => ['migrate', '--force' => true],
+    'migrate-fresh-seed' => ['migrate:fresh', '--force' => true, '--seed' => true],
+    'seed' => ['db:seed', '--force' => true],
+    'link' => ['storage:link'],
+    'clear' => ['optimize:clear'],
+    'cache' => ['optimize'],
+];
+
+if ($cmd === 'help' || ! isset($allowed[$cmd])) {
+    exit('Perintah tersedia: '.implode(', ', array_keys($allowed)));
+}
+
+$status = $kernel->call($allowed[$cmd][0], array_slice($allowed[$cmd], 1));
+echo '<pre>'.htmlspecialchars(Illuminate\Support\Facades\Artisan::output()).'</pre>';
+echo "<p>Exit code: {$status}</p>";

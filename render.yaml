@@ -1,0 +1,50 @@
+services:
+  # ─── Web Maison Parfum (Docker, free) ───────────────────────
+  - type: web
+    name: maison-parfum
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /up
+    envVars:
+      - key: APP_NAME
+        value: Maison Parfum
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_URL
+        sync: false # isi manual: https://maison-parfum.onrender.com
+      - key: APP_KEY
+        sync: false # WAJIB isi manual: jalankan `php artisan key:generate --show` di laptop, paste outputnya (diawali base64:...). JANGAN pakai generateValue Render (formatnya salah untuk Laravel).
+      - key: APP_LOCALE
+        value: id
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: error
+      # ── Database: pakai key DATABASE_URL dari Postgres Render ──
+      - key: DATABASE_URL
+        fromDatabase:
+          name: maison-parfum-db
+          property: connectionString
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: SESSION_DRIVER
+        value: cookie
+      - key: SESSION_ENCRYPT
+        value: true
+      - key: SESSION_SECURE_COOKIE
+        value: true
+      - key: CACHE_STORE
+        value: file
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: FILESYSTEM_DISK
+        value: public
+
+databases:
+  # ─── Postgres gratis (1 GB, kedaluwarsa 30 hari — perpanjang/upgrade bila perlu)
+  - name: maison-parfum-db
+    plan: free

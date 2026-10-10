@@ -1,0 +1,9 @@
+/.vercel
+/vendor
+/node_modules
+.env
+database/database.sqlite
+storage/app/public/products/*
+!storage/app/public/.gitignore
+public/storage
+.phpunit.result.cache
